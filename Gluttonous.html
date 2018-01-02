@@ -156,17 +156,16 @@
             else{
                 snake.shift();
             }
+            if(snake.indexOf(cell)!=-1)
+                game_status = 0;
             snake.push(cell);
         }
-
-        if(snake.lastIndexOf(snake[0])!=0)
-            game_status = 0;
         init();
     }
 
     timer = setInterval(function(){
         doSomething(KEY_CODE)
-    },200)
+    },100)
 
 </script>
 
