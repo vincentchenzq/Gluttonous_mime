@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>贪吃蛇</title>
+    <style>
+        canvas{
+            border:1px solid #ddd;
+        }
+    </style>
 </head>
 <body>
 <canvas id="canvas"></canvas>
@@ -10,7 +15,158 @@
 
 <script>
 
+//    常量区
 
+    const WIDTH = 500;//宽度
+    const HEIGHT = WIDTH;//高度
+    const CELL_NUM = 50; //水平/垂直的格子个数
+    const BACKGROUNDCOLOR = "#000";//背景颜色
+    const SNAKE_COLOR = "#ddd";//蛇颜色
+    const SNAKE_HEAD_COLOR = "#f00";//蛇头
+    const FOOD_COLOR = '#0f0';//食物颜色
+    const CELL_WIDTH = Math.floor(WIDTH/CELL_NUM);//格子宽度
+    var  KEY_CODE = 39;
+    var timer;
+
+
+    var canvas = document.getElementById("canvas");
+    var context = canvas.getContext("2d");
+
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+
+    var snake = ['0,0','1,0','2,0','3,0','4,0','5,0'];//蛇的格子  比如 0 0 就表示为 0,0
+    var food = [];
+    var game_status = 1;// 1 表示游戏中 0表示结束
+
+    //通过一个坐标打印蛇
+    var paint = function(x,y,color){
+        context.fillStyle = color;
+        var x0 = CELL_WIDTH * x;
+        var y0 = CELL_WIDTH * y;
+        context.fillRect(x0, y0, CELL_WIDTH, CELL_WIDTH);
+    };
+
+//    游戏主函数
+    var init = function(){
+        if(!game_status){
+            clearInterval(timer);
+            alert("游戏结束");
+            return;
+        }
+
+        context.clearRect(0, 0, WIDTH, HEIGHT);
+
+        context.fillStyle = BACKGROUNDCOLOR;
+        context.fillRect(0,0,WIDTH,HEIGHT);
+
+        for(var a in  snake){
+            [x,y] = snake[a].split(",");
+            var color = a==snake.length-1 ? SNAKE_HEAD_COLOR : SNAKE_COLOR;
+            paint(+x,+y,color);
+        }
+
+
+        [x,y] = food.split(",");
+        x = parseInt(x);
+        y = parseInt(y);
+        paint(x,y,FOOD_COLOR);
+
+    };
+
+    //随机一个食物
+    var randomFood = function(){
+        while (true){
+            var x = Math.floor(Math.random()*CELL_NUM);
+            var y = Math.floor(Math.random()*CELL_NUM);
+            if(snake.indexOf(x+","+y)==-1){
+            food = x+","+y;
+                break;
+            }
+        }
+    };
+
+    randomFood();
+    init();
+
+    document.onkeyup = function (e) {
+        if(e.keyCode == 37
+            || e.keyCode ==38
+            || e.keyCode ==39
+            || e.keyCode ==40
+        ){
+            if(Math.abs(e.keyCode - KEY_CODE) ==2){
+                console.error("111");
+                return;
+            }
+
+            KEY_CODE = e.keyCode;
+            doSomething(KEY_CODE)
+        }
+    };
+
+    //处理函数
+    var doSomething = function(keyCode){
+        [x,y] = snake[snake.length-1].split(",");
+        x = parseInt(x);
+        y = parseInt(y);
+        var cell;
+        switch (keyCode){
+            case 38 ://上
+                if(y==0){
+                    game_status = 0;
+                }else{
+                    cell = x + "," + (y-1);
+                }
+                break;
+            case 40 ://下
+                if(y == CELL_NUM-1){
+                    game_status = 0;
+                }else{
+                    cell = x + "," + (y+1);
+                }
+                break;
+            case 37 ://左
+                if(x == 0){
+                    game_status = 0;
+                }else{
+                    cell = (x-1) + "," + y;
+                }
+                break;
+            case 39 ://右
+                if(x == CELL_NUM-1){
+                    game_status = 0;
+                }else{
+                    cell = (x+1) + "," + y;
+                }
+                break;
+        }
+
+        if(KEY_CODE == 37
+            || KEY_CODE ==38
+            || KEY_CODE ==39
+            || KEY_CODE ==40
+        ){
+            [x1,y1] = food.split(",");
+            x1 = parseInt(x1);
+            y1 = parseInt(y1);
+
+            if(x == x1 && y == y1)
+            randomFood();
+            else{
+                snake.shift();
+            }
+            snake.push(cell);
+        }
+
+        if(snake.lastIndexOf(snake[0])!=0)
+            game_status = 0;
+        init();
+    }
+
+    timer = setInterval(function(){
+        doSomething(KEY_CODE)
+    },200)
 
 </script>
 
